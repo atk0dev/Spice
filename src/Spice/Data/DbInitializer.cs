@@ -23,18 +23,18 @@ namespace Spice.Data
         }
 
 
-        public async void Initialize()
+        public async Task Initialize()
         {
             try
             {
-                if(_db.Database.GetPendingMigrations().Count()>0)
+                if ((await _db.Database.GetPendingMigrationsAsync()).Any())
                 {
-                    _db.Database.Migrate();
+                    await _db.Database.MigrateAsync();
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
 
             if (_db.Roles.Any(r => r.Name == SD.ManagerUser)) return;

@@ -38,7 +38,7 @@ namespace Spice.Service
             {
                 return client.SendEmailAsync(msg);
             }
-            catch(Exception ex)
+            catch
             {
 
             }

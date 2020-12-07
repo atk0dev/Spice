@@ -74,6 +74,8 @@ namespace Spice
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
                 options.Cookie.HttpOnly = true;
             });
+
+            services.AddDatabaseDeveloperPageExceptionFilter();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -82,7 +84,7 @@ namespace Spice
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                app.UseMigrationsEndPoint();
             }
             else
             {
@@ -92,7 +94,7 @@ namespace Spice
             }
             app.UseRouting();
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe")["SecretKey"];
-            dbInitializer.Initialize();
+            dbInitializer.Initialize().Wait();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
