@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Spice.Models;
-using Spice.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Spice.Data
+﻿namespace Spice.Data
 {
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Spice.Models;
+    using Spice.Utility;
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+
     public class DbInitializer : IDbInitializer
     {
         private readonly ApplicationDbContext _db;
@@ -37,7 +36,10 @@ namespace Spice.Data
                 Console.WriteLine(ex);
             }
 
-            if (_db.Roles.Any(r => r.Name == SD.ManagerUser)) return;
+            if (_db.Roles.Any(r => r.Name == SD.ManagerUser))
+            {
+                return;
+            }
 
             _roleManager.CreateAsync(new IdentityRole(SD.ManagerUser)).GetAwaiter().GetResult();
             _roleManager.CreateAsync(new IdentityRole(SD.FrontDeskUser)).GetAwaiter().GetResult();
@@ -46,18 +48,16 @@ namespace Spice.Data
 
             _userManager.CreateAsync(new ApplicationUser
             {
-                UserName = "admin@gmail.com",
-                Email = "admin@gmail.com",
-                Name = "Bhrugen Patel",
+                UserName = "admin@email.com",
+                Email = "admin@email.com",
+                Name = "Andrii",
                 EmailConfirmed = true,
                 PhoneNumber = "1112223333"
             }, "Admin123*").GetAwaiter().GetResult();
 
-            IdentityUser user = await _db.Users.FirstOrDefaultAsync(u => u.Email == "admin@gmail.com");
+            IdentityUser user = await _db.Users.FirstOrDefaultAsync(u => u.Email == "admin@email.com");
 
             await _userManager.AddToRoleAsync(user, SD.ManagerUser);
-
         }
-
     }
 }

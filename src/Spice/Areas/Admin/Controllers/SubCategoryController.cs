@@ -30,7 +30,10 @@ namespace Spice.Areas.Admin.Controllers
         //Get INDEX
         public async Task<IActionResult> Index()
         {
-            var subCategories = await _db.SubCategory.Include(s=>s.Category).ToListAsync();
+            var subCategories = await _db.SubCategory
+                .Include(s=>s.Category)
+                .ToListAsync();
+            
             return View(subCategories);
         }
 
@@ -41,7 +44,11 @@ namespace Spice.Areas.Admin.Controllers
             {
                 CategoryList = await _db.Category.ToListAsync(),
                 SubCategory = new Models.SubCategory(),
-                SubCategoryList = await _db.SubCategory.OrderBy(p => p.Name).Select(p => p.Name).Distinct().ToListAsync()
+                SubCategoryList = await _db.SubCategory
+                    .OrderBy(p => p.Name)
+                    .Select(p => p.Name)
+                    .Distinct()
+                    .ToListAsync()
             };
 
             return View(model);
