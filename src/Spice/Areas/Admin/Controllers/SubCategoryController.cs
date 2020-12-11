@@ -61,42 +61,43 @@ namespace Spice.Areas.Admin.Controllers
         {
             if(ModelState.IsValid)
             {
-                var doesSubCategoryExists = _db.SubCategory.Include(s => s.Category).Where(s => s.Name == model.SubCategory.Name && s.Category.Id == model.SubCategory.CategoryId);
+                var doesSubCategoryExists = _db.SubCategory
+                    .Include(s => s.Category)
+                    .Where(s => s.Name == model.SubCategory.Name 
+                                && s.Category.Id == model.SubCategory.CategoryId);
 
-                if(doesSubCategoryExists.Count()>0)
+                if(doesSubCategoryExists.Any())
                 {
-                    //Error
-                    StatusMessage = "Error : Sub Category exists under " + doesSubCategoryExists.First().Category.Name + " category. Please use another name.";
+                    StatusMessage = $"Error : Sub Category exists under {doesSubCategoryExists.First().Category.Name} category. Please use another name.";
                 }
                 else
                 {
-                    _db.SubCategory.Add(model.SubCategory);
+                    await _db.SubCategory.AddAsync(model.SubCategory);
                     await _db.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
             }
-            SubCategoryAndCategoryViewModel modelVM = new SubCategoryAndCategoryViewModel()
+
+            var viewModel = new SubCategoryAndCategoryViewModel()
             {
                 CategoryList = await _db.Category.ToListAsync(),
                 SubCategory = model.SubCategory,
                 SubCategoryList = await _db.SubCategory.OrderBy(p => p.Name).Select(p => p.Name).ToListAsync(),
                 StatusMessage = StatusMessage
             };
-            return View(modelVM);
-        }
 
+            return View(viewModel);
+        }
 
         [ActionName("GetSubCategory")]
         public async Task<IActionResult> GetSubCategory(int id)
         {
-            List<SubCategory> subCategories = new List<SubCategory>();
+            var subCategories = await _db.SubCategory
+                .Where(subCategory => subCategory.CategoryId == id)
+                .ToListAsync();
 
-            subCategories = await (from subCategory in _db.SubCategory
-                             where subCategory.CategoryId == id
-                             select subCategory).ToListAsync();
             return Json(new SelectList(subCategories, "Id", "Name"));
         }
-
 
         //GET - EDIT
         public async Task<IActionResult> Edit(int? id)
@@ -113,14 +114,18 @@ namespace Spice.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            SubCategoryAndCategoryViewModel model = new SubCategoryAndCategoryViewModel()
+            var viewModel = new SubCategoryAndCategoryViewModel()
             {
                 CategoryList = await _db.Category.ToListAsync(),
                 SubCategory = subCategory,
-                SubCategoryList = await _db.SubCategory.OrderBy(p => p.Name).Select(p => p.Name).Distinct().ToListAsync()
+                SubCategoryList = await _db.SubCategory
+                    .OrderBy(p => p.Name)
+                    .Select(p => p.Name)
+                    .Distinct()
+                    .ToListAsync()
             };
 
-            return View(model);
+            return View(viewModel);
         }
 
         //POST - EDIT
@@ -130,12 +135,14 @@ namespace Spice.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var doesSubCategoryExists = _db.SubCategory.Include(s => s.Category).Where(s => s.Name == model.SubCategory.Name && s.Category.Id == model.SubCategory.CategoryId);
+                var doesSubCategoryExists = _db.SubCategory
+                    .Include(s => s.Category)
+                    .Where(s => s.Name == model.SubCategory.Name 
+                                && s.Category.Id == model.SubCategory.CategoryId);
 
-                if (doesSubCategoryExists.Count() > 0)
+                if (doesSubCategoryExists.Any())
                 {
-                    //Error
-                    StatusMessage = "Error : Sub Category exists under " + doesSubCategoryExists.First().Category.Name + " category. Please use another name.";
+                    StatusMessage = $"Error : Sub Category exists under {doesSubCategoryExists.First().Category.Name} category. Please use another name.";
                 }
                 else
                 {
@@ -146,15 +153,19 @@ namespace Spice.Areas.Admin.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
-            SubCategoryAndCategoryViewModel modelVM = new SubCategoryAndCategoryViewModel()
+
+            var viewModel = new SubCategoryAndCategoryViewModel()
             {
                 CategoryList = await _db.Category.ToListAsync(),
                 SubCategory = model.SubCategory,
-                SubCategoryList = await _db.SubCategory.OrderBy(p => p.Name).Select(p => p.Name).ToListAsync(),
+                SubCategoryList = await _db.SubCategory
+                    .OrderBy(p => p.Name)
+                    .Select(p => p.Name)
+                    .ToListAsync(),
                 StatusMessage = StatusMessage
             };
-            //modelVM.SubCategory.Id = id;
-            return View(modelVM);
+            
+            return View(viewModel);
         }
 
         //GET Details

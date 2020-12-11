@@ -4,7 +4,10 @@
     {
         public static string GetPropertyValue<T>(this T item, string propertyName)
         {
-            return item.GetType().GetProperty(propertyName)?.GetValue(item, null)?.ToString();
+            var value = item.GetType().GetProperty(propertyName)?
+                .GetValue(item, null)?.ToString();
+            
+            return value ?? string.Empty;
         }
     }
 }

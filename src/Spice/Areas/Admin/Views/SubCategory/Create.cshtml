@@ -1,10 +1,8 @@
 ﻿@model Spice.Models.ViewModels.SubCategoryAndCategoryViewModel
 @using Spice.Extensions
 
-@{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+@{ ViewData["Title"] = "Create";
+                Layout = "~/Views/Shared/_Layout.cshtml"; }
 
 <br />
 <h2 class="text-info">Create Sub Category</h2>
@@ -21,7 +19,9 @@
                     <label asp-for="SubCategory.CategoryId" class="col-form-label"></label>
                 </div>
                 <div class="col-5">
-                   <select id="ddlCategorylist" asp-for="SubCategory.CategoryId" asp-items="Model.CategoryList.ToSelectListItem(Model.SubCategory.CategoryId)" class="form-control"></select>
+                    <select id="ddlCategorylist" asp-for="SubCategory.CategoryId" 
+                            asp-items="Model.CategoryList.ToSelectListItem(Model.SubCategory.CategoryId)" 
+                            class="form-control"></select>
                 </div>
             </div>
             <div class="form-group row">
@@ -40,8 +40,9 @@
             </div>
         </form>
     </div>
+
     <div class="col-3 offset-1">
-        @if(Model.SubCategoryList.Count() > 0)
+        @if (Model.SubCategoryList.Any())
         {
             <p> Existing Subcategories: </p>
 
@@ -51,11 +52,9 @@
         }
     </div>
 
-
-   
 </div>
 
-@section Scripts{ 
+@section Scripts{
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script>
@@ -78,9 +77,7 @@
                     }
                     $list.append('</ul>');
                 }
-
             });
-
         }
 
         $(document).ready(function () {
@@ -91,8 +88,5 @@
             updateSubCategoryList();
         });
 
-
     </script>
-
-
 }
