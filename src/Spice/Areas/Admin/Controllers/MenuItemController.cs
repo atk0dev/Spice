@@ -28,6 +28,7 @@ namespace Spice.Areas.Admin.Controllers
         {
             _db = db;
             _hostingEnvironment = hostingEnvironment;
+
             MenuItemVM = new MenuItemViewModel()
             {
                 Category = _db.Category,
@@ -37,7 +38,11 @@ namespace Spice.Areas.Admin.Controllers
 
         public async  Task<IActionResult> Index()
         {
-            var menuItems = await _db.MenuItem.Include(m=>m.Category).Include(m=>m.SubCategory).ToListAsync();
+            var menuItems = await _db.MenuItem
+                .Include(m=>m.Category)
+                .Include(m=>m.SubCategory)
+                .ToListAsync();
+                
             return View(menuItems);
         }
 
