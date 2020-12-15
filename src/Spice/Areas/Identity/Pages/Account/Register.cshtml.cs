@@ -78,10 +78,10 @@ namespace Spice.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            string role = Request.Form["rdUserRole"].ToString();
+            var role = Request.Form["rdUserRole"].ToString();
 
+            returnUrl ??= Url.Content("~/");
 
-            returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser {
@@ -137,7 +137,6 @@ namespace Spice.Areas.Identity.Pages.Account
                     //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                     //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    
                   
                 }
                 foreach (var error in result.Errors)
