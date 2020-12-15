@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Spice.Data;
-using Spice.Models;
-using Spice.Utility;
-
-namespace Spice.Areas.Admin.Controllers
+﻿namespace Spice.Areas.Admin.Controllers
 {
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Spice.Data;
+    using Spice.Models;
+    using Spice.Utility;
+
     [Area("Admin")]
     [Authorize(Roles = SD.ManagerUser)]
     public class CouponController : Controller
@@ -37,26 +35,29 @@ namespace Spice.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Coupon coupons)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var files = HttpContext.Request.Form.Files;
-                if(files.Count>0)
+                if (files.Count > 0)
                 {
-                    byte[] p1 = null;
-                    using (var fs1 = files[0].OpenReadStream())
+                    byte[] imageBytes = null;
+                    await using (var imageStream = files[0].OpenReadStream())
                     {
-                        using (var ms1 = new MemoryStream())
+                        await using (var memoryStream = new MemoryStream())
                         {
-                            fs1.CopyTo(ms1);
-                            p1 = ms1.ToArray();
+                            await imageStream.CopyToAsync(memoryStream);
+                            imageBytes = memoryStream.ToArray();
                         }
                     }
-                    coupons.Picture = p1;
+
+                    coupons.Picture = imageBytes;
                 }
-                _db.Coupon.Add(coupons);
+
+                await _db.Coupon.AddAsync(coupons);
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(coupons);
         }
 
@@ -68,11 +69,13 @@ namespace Spice.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+
             var coupon = await _db.Coupon.SingleOrDefaultAsync(m => m.Id == id);
             if (coupon == null)
             {
                 return NotFound();
             }
+
             return View(coupon);
         }
 
@@ -92,17 +95,19 @@ namespace Spice.Areas.Admin.Controllers
                 var files = HttpContext.Request.Form.Files;
                 if (files.Count > 0)
                 {
-                    byte[] p1 = null;
-                    using (var fs1 = files[0].OpenReadStream())
+                    byte[] imageBytes = null;
+                    await using (var imageStream = files[0].OpenReadStream())
                     {
-                        using (var ms1 = new MemoryStream())
+                        await using (var memoryStream = new MemoryStream())
                         {
-                            fs1.CopyTo(ms1);
-                            p1 = ms1.ToArray();
+                            await imageStream.CopyToAsync(memoryStream);
+                            imageBytes = memoryStream.ToArray();
                         }
                     }
-                    couponFromDb.Picture = p1;
+
+                    couponFromDb.Picture = imageBytes;
                 }
+
                 couponFromDb.MinimumAmount = coupons.MinimumAmount;
                 couponFromDb.Name = coupons.Name;
                 couponFromDb.Discount = coupons.Discount;
@@ -112,6 +117,7 @@ namespace Spice.Areas.Admin.Controllers
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(coupons);
         }
 
@@ -123,8 +129,8 @@ namespace Spice.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var coupon = await _db.Coupon
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var coupon = await _db.Coupon.FirstOrDefaultAsync(m => m.Id == id);
+            
             if (coupon == null)
             {
                 return NotFound();
@@ -140,11 +146,13 @@ namespace Spice.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+            
             var coupon = await _db.Coupon.SingleOrDefaultAsync(m => m.Id == id);
             if (coupon == null)
             {
                 return NotFound();
             }
+
             return View(coupon);
         }
 
