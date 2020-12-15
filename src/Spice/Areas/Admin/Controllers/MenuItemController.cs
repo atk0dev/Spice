@@ -22,14 +22,14 @@ namespace Spice.Areas.Admin.Controllers
         private readonly IWebHostEnvironment _hostingEnvironment;
 
         [BindProperty]
-        public MenuItemViewModel MenuItemVM { get; set; }
+        public MenuItemViewModel MenuItemViewModel { get; set; }
   
         public MenuItemController(ApplicationDbContext db, IWebHostEnvironment hostingEnvironment)
         {
             _db = db;
             _hostingEnvironment = hostingEnvironment;
 
-            MenuItemVM = new MenuItemViewModel()
+            this.MenuItemViewModel = new MenuItemViewModel()
             {
                 Category = _db.Category,
                 MenuItem = new Models.MenuItem()
@@ -49,29 +49,27 @@ namespace Spice.Areas.Admin.Controllers
         //GET - CREATE
         public IActionResult Create()
         {
-            return View(MenuItemVM);
+            return View(this.MenuItemViewModel);
         }
 
         [HttpPost,ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePOST()
+        public async Task<IActionResult> CreateMenuItem()
         {
-            MenuItemVM.MenuItem.SubCategoryId = Convert.ToInt32(Request.Form["SubCategoryId"].ToString());
+            this.MenuItemViewModel.MenuItem.SubCategoryId = Convert.ToInt32(Request.Form["SubCategoryId"].ToString());
 
             if(!ModelState.IsValid)
             {
-                return View(MenuItemVM);
+                return View(this.MenuItemViewModel);
             }
 
-            _db.MenuItem.Add(MenuItemVM.MenuItem);
+            await _db.MenuItem.AddAsync(this.MenuItemViewModel.MenuItem);
             await _db.SaveChangesAsync();
 
-            //Work on the image saving section
-
-            string webRootPath = _hostingEnvironment.WebRootPath;
+            var webRootPath = _hostingEnvironment.WebRootPath;
             var files = HttpContext.Request.Form.Files;
 
-            var menuItemFromDb = await _db.MenuItem.FindAsync(MenuItemVM.MenuItem.Id);
+            var menuItemFromDb = await _db.MenuItem.FindAsync(this.MenuItemViewModel.MenuItem.Id);
 
             if(files.Count>0)
             {
@@ -79,18 +77,19 @@ namespace Spice.Areas.Admin.Controllers
                 var uploads = Path.Combine(webRootPath, "images");
                 var extension = Path.GetExtension(files[0].FileName);
 
-                using (var filesStream = new FileStream(Path.Combine(uploads,MenuItemVM.MenuItem.Id + extension), FileMode.Create))
+                await using (var filesStream = new FileStream(Path.Combine(uploads, this.MenuItemViewModel.MenuItem.Id + extension), FileMode.Create))
                 {
-                    files[0].CopyTo(filesStream);
+                    await files[0].CopyToAsync(filesStream);
                 }
-                menuItemFromDb.Image = @"\images\" + MenuItemVM.MenuItem.Id + extension;
+
+                menuItemFromDb.Image = $@"\images\{this.MenuItemViewModel.MenuItem.Id}{extension}";
             }
             else
             {
                 //no file was uploaded, so use default
                 var uploads = Path.Combine(webRootPath, @"images\" + SD.DefaultFoodImage);
-                System.IO.File.Copy(uploads, webRootPath + @"\images\" + MenuItemVM.MenuItem.Id + ".png");
-                menuItemFromDb.Image = @"\images\" + MenuItemVM.MenuItem.Id + ".png";
+                System.IO.File.Copy(uploads, webRootPath + @"\images\" + this.MenuItemViewModel.MenuItem.Id + ".png");
+                menuItemFromDb.Image = @"\images\" + this.MenuItemViewModel.MenuItem.Id + ".png";
             }
 
             await _db.SaveChangesAsync();
@@ -102,72 +101,82 @@ namespace Spice.Areas.Admin.Controllers
         //GET - EDIT
         public async Task<IActionResult> Edit(int? id)
         {
-            if(id==null)
+            if (id==null)
             {
                 return NotFound();
             }
 
-            MenuItemVM.MenuItem = await _db.MenuItem.Include(m => m.Category).Include(m => m.SubCategory).SingleOrDefaultAsync(m => m.Id == id);
-            MenuItemVM.SubCategory = await _db.SubCategory.Where(s => s.CategoryId == MenuItemVM.MenuItem.CategoryId).ToListAsync();
+            this.MenuItemViewModel.MenuItem = await _db.MenuItem
+                .Include(m => m.Category)
+                .Include(m => m.SubCategory)
+                .SingleOrDefaultAsync(m => m.Id == id);
+            
+            this.MenuItemViewModel.SubCategory = await _db.SubCategory
+                .Where(s => s.CategoryId == this.MenuItemViewModel.MenuItem.CategoryId)
+                .ToListAsync();
 
-            if(MenuItemVM.MenuItem ==null)
+            if (this.MenuItemViewModel.MenuItem ==null)
             {
                 return NotFound();
             }
-            return View(MenuItemVM);
+
+            return View(this.MenuItemViewModel);
         }
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPOST(int? id)
+        public async Task<IActionResult> EditMenuItem(int? id)
         {
-            if(id==null)
+            if (id==null)
             {
                 return NotFound();
             }
-            MenuItemVM.MenuItem.SubCategoryId = Convert.ToInt32(Request.Form["SubCategoryId"].ToString());
+
+            this.MenuItemViewModel.MenuItem.SubCategoryId = Convert.ToInt32(Request.Form["SubCategoryId"].ToString());
 
             if (!ModelState.IsValid)
             {
-                MenuItemVM.SubCategory = await _db.SubCategory.Where(s => s.CategoryId == MenuItemVM.MenuItem.CategoryId).ToListAsync();
-                return View(MenuItemVM);
+                this.MenuItemViewModel.SubCategory = await _db.SubCategory
+                    .Where(s => s.CategoryId == this.MenuItemViewModel.MenuItem.CategoryId)
+                    .ToListAsync();
+
+                return View(this.MenuItemViewModel);
             }
 
-            //Work on the image saving section
-
-            string webRootPath = _hostingEnvironment.WebRootPath;
+            var webRootPath = _hostingEnvironment.WebRootPath;
             var files = HttpContext.Request.Form.Files;
 
-            var menuItemFromDb = await _db.MenuItem.FindAsync(MenuItemVM.MenuItem.Id);
+            var menuItemFromDb = await _db.MenuItem.FindAsync(this.MenuItemViewModel.MenuItem.Id);
 
             if (files.Count > 0)
             {
                 //New Image has been uploaded
                 var uploads = Path.Combine(webRootPath, "images");
-                var extension_new = Path.GetExtension(files[0].FileName);
+                var newExtension = Path.GetExtension(files[0].FileName);
 
                 //Delete the original file
                 var imagePath = Path.Combine(webRootPath, menuItemFromDb.Image.TrimStart('\\'));
 
-                if(System.IO.File.Exists(imagePath))
+                if (System.IO.File.Exists(imagePath))
                 {
                     System.IO.File.Delete(imagePath);
                 }
 
                 //we will upload the new file
-                using (var filesStream = new FileStream(Path.Combine(uploads, MenuItemVM.MenuItem.Id + extension_new), FileMode.Create))
+                await using (var filesStream = new FileStream(Path.Combine(uploads, this.MenuItemViewModel.MenuItem.Id + newExtension), FileMode.Create))
                 {
-                    files[0].CopyTo(filesStream);
+                    await files[0].CopyToAsync(filesStream);
                 }
-                menuItemFromDb.Image = @"\images\" + MenuItemVM.MenuItem.Id + extension_new;
+
+                menuItemFromDb.Image = @"\images\" + this.MenuItemViewModel.MenuItem.Id + newExtension;
             }
 
-            menuItemFromDb.Name = MenuItemVM.MenuItem.Name;
-            menuItemFromDb.Description = MenuItemVM.MenuItem.Description;
-            menuItemFromDb.Price = MenuItemVM.MenuItem.Price;
-            menuItemFromDb.Spicyness = MenuItemVM.MenuItem.Spicyness;
-            menuItemFromDb.CategoryId = MenuItemVM.MenuItem.CategoryId;
-            menuItemFromDb.SubCategoryId = MenuItemVM.MenuItem.SubCategoryId;
+            menuItemFromDb.Name = this.MenuItemViewModel.MenuItem.Name;
+            menuItemFromDb.Description = this.MenuItemViewModel.MenuItem.Description;
+            menuItemFromDb.Price = this.MenuItemViewModel.MenuItem.Price;
+            menuItemFromDb.Spicyness = this.MenuItemViewModel.MenuItem.Spicyness;
+            menuItemFromDb.CategoryId = this.MenuItemViewModel.MenuItem.CategoryId;
+            menuItemFromDb.SubCategoryId = this.MenuItemViewModel.MenuItem.SubCategoryId;
 
             await _db.SaveChangesAsync();
 
@@ -182,14 +191,17 @@ namespace Spice.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            MenuItemVM.MenuItem = await _db.MenuItem.Include(m => m.Category).Include(m => m.SubCategory).SingleOrDefaultAsync(m => m.Id == id);
+            this.MenuItemViewModel.MenuItem = await _db.MenuItem
+                .Include(m => m.Category)
+                .Include(m => m.SubCategory)
+                .SingleOrDefaultAsync(m => m.Id == id);
 
-            if (MenuItemVM.MenuItem == null)
+            if (this.MenuItemViewModel.MenuItem == null)
             {
                 return NotFound();
             }
 
-            return View(MenuItemVM);
+            return View(this.MenuItemViewModel);
         }
 
         //GET : Delete MenuItem
@@ -200,14 +212,17 @@ namespace Spice.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            MenuItemVM.MenuItem = await _db.MenuItem.Include(m => m.Category).Include(m => m.SubCategory).SingleOrDefaultAsync(m => m.Id == id);
+            this.MenuItemViewModel.MenuItem = await _db.MenuItem
+                .Include(m => m.Category)
+                .Include(m => m.SubCategory)
+                .SingleOrDefaultAsync(m => m.Id == id);
 
-            if (MenuItemVM.MenuItem == null)
+            if (this.MenuItemViewModel.MenuItem == null)
             {
                 return NotFound();
             }
 
-            return View(MenuItemVM);
+            return View(this.MenuItemViewModel);
         }
 
         //POST Delete MenuItem
@@ -226,9 +241,9 @@ namespace Spice.Areas.Admin.Controllers
                 {
                     System.IO.File.Delete(imagePath);
                 }
+                
                 _db.MenuItem.Remove(menuItem);
                 await _db.SaveChangesAsync();
-
             }
 
             return RedirectToAction(nameof(Index));
