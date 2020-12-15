@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Spice.Models.ViewModels
+﻿namespace Spice.Models.ViewModels
 {
+    using System.Collections.Generic;
+
     public class IndexViewModel
     {
         public IEnumerable<MenuItem> MenuItem { get; set; }

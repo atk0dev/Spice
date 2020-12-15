@@ -12,6 +12,7 @@ a.navbar-brand {
 html {
   font-size: 14px;
 }
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -56,11 +57,11 @@ body {
 }
 
 
-
+/*
 .search-background{
     background: url('/images/dust_scratches.png');
 }
-
+*/
 .backgroundWhite{
     background-color:white;
     padding:30px;
@@ -85,7 +86,7 @@ body {
 
 
 
-.menu-filter-list li{
+.menu-filter-list li {
     display: inline-block;
     cursor:pointer;
     padding:10px 20px 10px;
@@ -99,10 +100,9 @@ body {
     -webkit-transition:all 0.3s;
     transition:all 0.3s;
     font-family:"Poppins",sans-serif;
-
 }
 
-    .menu-filter-list li.is-checke, .menu-filter-list li:hover{
-        background-color:#545b62;
-        color:#fff;
-    }
+.menu-filter-list li.is-checke, .menu-filter-list li:hover {
+    background-color:#545b62;
+    color:#fff;
+}

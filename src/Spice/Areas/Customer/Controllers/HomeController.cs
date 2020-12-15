@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Spice.Data;
-using Spice.Models;
-using Spice.Models.ViewModels;
-using Spice.Utility;
-
-namespace Spice.Controllers
+﻿namespace Spice.Controllers
 {
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Spice.Data;
+    using Spice.Models;
+    using Spice.Models.ViewModels;
+    using Spice.Utility;
+
     [Area("Customer")]
     public class HomeController : Controller
     {
@@ -24,37 +22,46 @@ namespace Spice.Controllers
         {
             _db = db;
         }
-
-
+        
         public async Task<IActionResult> Index()
         {
-            IndexViewModel IndexVM = new IndexViewModel()
+            var indexViewModel = new IndexViewModel()
             {
-                MenuItem = await _db.MenuItem.Include(m => m.Category).Include(m => m.SubCategory).ToListAsync(),
-                Category = await _db.Category.ToListAsync(),
-                Coupon = await _db.Coupon.Where(c => c.IsActive == true).ToListAsync()
-
+                MenuItem = await _db.MenuItem
+                    .Include(m => m.Category)
+                    .Include(m => m.SubCategory)
+                    .ToListAsync(),
+                
+                Category = await _db.Category
+                    .ToListAsync(),
+                
+                Coupon = await _db.Coupon
+                    .Where(c => c.IsActive == true)
+                    .ToListAsync()
             };
 
             var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var claim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier);
 
-            if(claim!=null)
+            if (claim!=null)
             {
                 var cnt = _db.ShoppingCart.Where(u => u.ApplicationUserId == claim.Value).ToList().Count;
                 HttpContext.Session.SetInt32(SD.ssShoppingCartCount, cnt);
             }
 
-
-            return View(IndexVM);
+            return View(indexViewModel);
         }
 
         [Authorize]
         public async Task<IActionResult> Details(int id)
         {
-            var menuItemFromDb = await _db.MenuItem.Include(m => m.Category).Include(m => m.SubCategory).Where(m => m.Id == id).FirstOrDefaultAsync();
+            var menuItemFromDb = await _db.MenuItem
+                .Include(m => m.Category)
+                .Include(m => m.SubCategory)
+                .Where(m => m.Id == id)
+                .FirstOrDefaultAsync();
 
-            ShoppingCart cartObj = new ShoppingCart()
+            var cartObj = new ShoppingCart()
             {
                 MenuItem = menuItemFromDb,
                 MenuItemId = menuItemFromDb.Id
@@ -67,39 +74,50 @@ namespace Spice.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Details(ShoppingCart CartObject)
+        public async Task<IActionResult> Details(ShoppingCart cartObject)
         {
-            CartObject.Id = 0;
+            cartObject.Id = 0;
+
             if(ModelState.IsValid)
             {
                 var claimsIdentity = (ClaimsIdentity)this.User.Identity;
-                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-                CartObject.ApplicationUserId = claim.Value;
+                var claim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier);
+                cartObject.ApplicationUserId = claim?.Value;
 
-                ShoppingCart cartFromDb = await _db.ShoppingCart.Where(c => c.ApplicationUserId == CartObject.ApplicationUserId
-                                                && c.MenuItemId == CartObject.MenuItemId).FirstOrDefaultAsync();
+                var cartFromDb = await _db.ShoppingCart
+                    .Where(c => c.ApplicationUserId == cartObject.ApplicationUserId
+                                && c.MenuItemId == cartObject.MenuItemId)
+                    .FirstOrDefaultAsync();
 
                 if(cartFromDb==null)
                 {
-                    await _db.ShoppingCart.AddAsync(CartObject);
+                    await _db.ShoppingCart.AddAsync(cartObject);
                 }
                 else
                 {
-                    cartFromDb.Count = cartFromDb.Count + CartObject.Count;
+                    cartFromDb.Count += cartObject.Count;
                 }
+
                 await _db.SaveChangesAsync();
 
-                var count = _db.ShoppingCart.Where(c => c.ApplicationUserId == CartObject.ApplicationUserId).ToList().Count();
+                var count = _db.ShoppingCart
+                    .Where(c => c.ApplicationUserId == cartObject.ApplicationUserId)
+                    .ToList()
+                    .Count();
+                
                 HttpContext.Session.SetInt32(SD.ssShoppingCartCount, count);
 
                 return RedirectToAction("Index");
             }
             else
             {
+                var menuItemFromDb = await _db.MenuItem
+                    .Include(m => m.Category)
+                    .Include(m => m.SubCategory)
+                    .Where(m => m.Id == cartObject.MenuItemId)
+                    .FirstOrDefaultAsync();
 
-                var menuItemFromDb = await _db.MenuItem.Include(m => m.Category).Include(m => m.SubCategory).Where(m => m.Id == CartObject.MenuItemId).FirstOrDefaultAsync();
-
-                ShoppingCart cartObj = new ShoppingCart()
+                var cartObj = new ShoppingCart()
                 {
                     MenuItem = menuItemFromDb,
                     MenuItemId = menuItemFromDb.Id
@@ -109,10 +127,6 @@ namespace Spice.Controllers
             }
         }
 
-
-
-
-
         public IActionResult Privacy()
         {
             return View();
@@ -121,7 +135,10 @@ namespace Spice.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
     }
 }

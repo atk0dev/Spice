@@ -1,13 +1,12 @@
 ﻿@model IEnumerable<MenuItem>
 @*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
-@if (Model.Count() > 0)
+@if (Model.Any())
 {
-    <div class="col-12 post @Model.FirstOrDefault().Category.Name.Replace(" ",string.Empty) menu-restaurant">
+    <div class="col-12 post @Model.FirstOrDefault()?.Category.Name.Replace(" ",string.Empty) menu-restaurant">
         <div class="row">
-            <h3 class="text-success"> @Model.FirstOrDefault().Category.Name </h3>
+            <h3 class="text-success"> @Model.FirstOrDefault()?.Category.Name </h3>
         </div>
 
         @foreach(var item in Model)
@@ -15,7 +14,8 @@
             <div class="border border-info rounded col-12" style="margin-bottom:10px; margin-top:10px; padding:10px">
                 <div class="row">
                     <div class="col-md-3 col-sm-12">
-                        <img src="@item.Image" width="99%" style="border-radius:5px;border:1px solid #bbb9b9" />
+                        @*<img src="@item.Image" width="99%" style="border-radius:5px;border:1px solid #bbb9b9" />*@
+                        <img src="@item.Image" width="99%" />
                     </div>
                     <div class="col-md-9 col-sm-12">
                         <div class="row pr-3">

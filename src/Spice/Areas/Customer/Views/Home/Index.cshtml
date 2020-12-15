@@ -10,8 +10,6 @@
             {
                 if (i == 0)
                 {
-
-
                     <div class="carousel-item active">
                         @{
                             var base64 = Convert.ToBase64String(Model.Coupon.ToList()[i].Picture);
@@ -35,7 +33,6 @@
             }
         </div>
     </div>
-
 }
 
 <br /><br />
@@ -61,33 +58,31 @@
       </div>
 
 
-@section Scripts{ 
-      <script src="https://code.jquery.com/jquery-3.3.1.js"
+@section Scripts
+{
+    <script src="https://code.jquery.com/jquery-3.3.1.js"
               integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
               crossorigin="anonymous"></script>
 
-<script>
+    <script>
+        
+        var posts = $('.post');
 
-    var posts = $('.post');
+        (function ($) {
 
-    (function ($) {
+            $("#menu-filters li").click(function () {
+                $("#menu-filters li").removeClass('active btn btn-secondary');
+                $(this).addClass('active btn btn-secondary');
 
-        $("#menu-filters li").click(function () {
-            $("#menu-filters li").removeClass('active btn btn-secondary');
-            $(this).addClass('active btn btn-secondary');
+                var selectedFilter = $(this).data("filter");
 
-            var selectedFilter = $(this).data("filter");
+                $(".menu-restaurant").fadeOut();
 
-            $(".menu-restaurant").fadeOut();
+                setTimeout(function () {
+                    $(selectedFilter).slideDown();
+                }, 300);
+            });
+        })(jQuery);
 
-            setTimeout(function () {
-                $(selectedFilter).slideDown();
-            }, 300);
-        });
-
-
-
-    })(jQuery);
- 
-</script>
-    }
+    </script>
+}

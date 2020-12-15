@@ -1,4 +1,5 @@
 1. asp.net healthcheck
 2. web api (kevin) for orders
-3. events in the event hub
+3. events in the event hub + servicebus queue and topic
 4. add audit log to controller actions
+5. hangfire 
