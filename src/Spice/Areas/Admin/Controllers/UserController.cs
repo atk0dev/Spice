@@ -31,26 +31,15 @@
 
         public async Task<IActionResult> Lock(string id)
         {
-            if (id==null)
-            {
-                return NotFound();
-            }
-
-            var applicationUser = await _db.ApplicationUser.FirstOrDefaultAsync(m => m.Id == id);
-
-            if(applicationUser==null)
-            {
-                return NotFound();
-            }
-
-            applicationUser.LockoutEnd = DateTime.Now.AddYears(1000);
-
-            await _db.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            return await this.ChangeUserLockoutEndDate(id, DateTime.Now.AddYears(1000));
         }
 
         public async Task<IActionResult> UnLock(string id)
+        {
+            return await this.ChangeUserLockoutEndDate(id, DateTime.Now);
+        }
+
+        private async Task<IActionResult> ChangeUserLockoutEndDate(string id, DateTime date)
         {
             if (id == null)
             {
@@ -64,7 +53,7 @@
                 return NotFound();
             }
 
-            applicationUser.LockoutEnd = DateTime.Now;
+            applicationUser.LockoutEnd = date;
 
             await _db.SaveChangesAsync();
 
