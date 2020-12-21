@@ -29,14 +29,6 @@ namespace Spice.Utility
         public const string PaymentStatusApproved = "Approved";
         public const string PaymentStatusRejected = "Rejected";
 
-
-
-
-
-
-
-
-
         public static string ConvertToRawHtml(string source)
         {
             char[] array = new char[source.Length];
@@ -62,20 +54,21 @@ namespace Spice.Utility
                     arrayIndex++;
                 }
             }
+            
             return new string(array, 0, arrayIndex);
         }
 
-        public static double DiscountedPrice(Coupon couponFromDb, double OriginalOrderTotal)
+        public static double DiscountedPrice(Coupon couponFromDb, double originalOrderTotal)
         {
-            if(couponFromDb==null)
+            if (couponFromDb==null)
             {
-                return OriginalOrderTotal;
+                return originalOrderTotal;
             }
             else
             {
-                if(couponFromDb.MinimumAmount > OriginalOrderTotal)
+                if (couponFromDb.MinimumAmount > originalOrderTotal)
                 {
-                    return OriginalOrderTotal;
+                    return originalOrderTotal;
                 }
                 else
                 {
@@ -83,17 +76,18 @@ namespace Spice.Utility
                     if(Convert.ToInt32(couponFromDb.CouponType) == (int)Coupon.ECouponType.Dollar)
                     {
                         //$10 off $100
-                        return Math.Round(OriginalOrderTotal - couponFromDb.Discount, 2);
+                        return Math.Round(originalOrderTotal - couponFromDb.Discount, 2);
                     }
-                        if (Convert.ToInt32(couponFromDb.CouponType) == (int)Coupon.ECouponType.Percent)
-                        {
+                    
+                    if (Convert.ToInt32(couponFromDb.CouponType) == (int)Coupon.ECouponType.Percent)
+                    {
                         //10% off $100
-                        return Math.Round(OriginalOrderTotal - (OriginalOrderTotal* couponFromDb.Discount/100), 2);
+                        return Math.Round(originalOrderTotal - (originalOrderTotal * couponFromDb.Discount / 100), 2);
                     }
                 }
             }
-            return OriginalOrderTotal;
+            
+            return originalOrderTotal;
         }
-
     }
 }

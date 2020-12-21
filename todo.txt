@@ -3,3 +3,4 @@
 3. events in the event hub + servicebus queue and topic
 4. add audit log to controller actions
 5. hangfire 
+6. Add search for menu items

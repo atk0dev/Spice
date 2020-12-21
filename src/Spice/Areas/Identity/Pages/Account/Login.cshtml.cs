@@ -88,7 +88,6 @@ namespace Spice.Areas.Identity.Pages.Account
 
                     HttpContext.Session.SetInt32(SD.ssShoppingCartCount, lstShoppingCart.Count);
 
-
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }

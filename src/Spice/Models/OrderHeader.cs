@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Spice.Models
+﻿namespace Spice.Models
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public class OrderHeader
     {
         [Key]
@@ -22,11 +19,11 @@ namespace Spice.Models
         public DateTime OrderDate { get; set; }
 
         [Required]
-        public double   OrderTotalOriginal { get; set; }
+        public double OrderTotalOriginal { get; set; }
 
         [Required]
         [DisplayFormat(DataFormatString = "{0:C}")]
-        [Display(Name ="Order Total")]
+        [Display(Name = "Order Total")]
         public double OrderTotal { get; set; }
 
         [Required]
@@ -37,13 +34,16 @@ namespace Spice.Models
         [NotMapped]
         public DateTime PickUpDate { get; set; }
 
-       [Display(Name ="Coupon Code")]
+        [Display(Name = "Coupon Code")]
         public string CouponCode { get; set; }
+        
         public double CouponCodeDiscount { get; set; }
+        
         public string Status { get; set; }
+        
         public string PaymentStatus { get; set; }
+        
         public string Comments { get; set; }
-
 
         [Display(Name = "Pickup Name")]
         public string PickupName { get; set; }
@@ -52,9 +52,5 @@ namespace Spice.Models
         public string PhoneNumber { get; set; }
 
         public string TransactionId { get; set; }
-
-
-
-
     }
 }

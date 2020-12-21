@@ -6,24 +6,26 @@
 }
 
 <form method="post">
-    @if (Model.listCart.Count > 0)
+    @if (Model.ListCart.Count > 0)
     {
         <br />
-        <input id="userId" asp-for="@Model.listCart[0].ApplicationUserId" hidden />
+        <input id="userId" asp-for="@Model.ListCart[0].ApplicationUserId" hidden />
         <div class="backgroundWhiteBorder">
             <div class="container">
                 <div class="card">
                     <div class="card-header bg-dark text-light ml-0 row container">
                         <div class="col-6">
-                            <i class="fa fa-shopping-cart"></i> &nbsp;
+                            <i class="fas fa-shopping-cart"></i> &nbsp;
                             Shopping Cart
                         </div>
                         <div class="col-6 text-right">
-                            <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="btn btn-outline-info btn-sm">Continue Shopping</a>
+                            <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="btn btn-outline-info btn-sm">
+                                Continue Shopping
+                            </a>
                         </div>
                     </div>
                     <div class="card-body">
-                        @foreach (var item in Model.listCart)
+                        @foreach (var item in Model.ListCart)
                         {
                             <div class="row">
                                 <div class="d-none d-lg-block col-lg-2 text-center py-2">
@@ -63,7 +65,7 @@
                             <div class="col-12 col-md-5">
                                 <div class="row">
                                     <div class="col-7">
-                                        <input asp-for="@Model.OrderHeader.CouponCode" id="txtCouponCode" class="form-control" placeholder="coupon code..." />
+                                        <input asp-for="@Model.OrderHeader.CouponCode" id="txtCouponCode" class="form-control" placeholder="Coupon code..." />
                                     </div>
                                     <div class="col-5" style="margin-top:2px;">
                                         <button type="submit" class="btn btn-sm form-control btn-outline-success" id="btnCoupon" asp-action="AddCoupon">
@@ -75,6 +77,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-12 col-md-6 offset-md-1 col-lg-4 offset-lg-3 pr-4">
                                 <ul class="list-group">
                                     <li class="list-group-item d-flex justify-content-between bg-light">
