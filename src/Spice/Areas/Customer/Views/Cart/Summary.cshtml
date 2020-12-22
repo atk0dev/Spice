@@ -18,7 +18,7 @@
                 <div class="card">
                     <div class="card-header bg-dark text-light ml-0 row container">
                         <div class="col-6">
-                            <i class="fa fa-shopping-cart"></i> &nbsp;
+                            <i class="fas fa-shopping-cart"></i> &nbsp;
                             Order Summary
                         </div>
                         <div class="col-6 text-right">
@@ -118,11 +118,11 @@
                             <div class="col-12 col-md-4 offset-md-8">
 
                                 @{
-                                    var OrderTotalForStrip = Model.OrderHeader.OrderTotal * 100;
+                                    var orderTotalForStrip = Model.OrderHeader.OrderTotal * 100;
                                 }
                                 <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                                         data-key="@Stripe.Value.PublishableKey"
-                                        data-amount="@OrderTotalForStrip"
+                                        data-amount="@orderTotalForStrip"
                                         data-name="Spice Restaurant"
                                         data-label="Place Order"
                                         data-description="Good Food, Good Mood."
@@ -159,19 +159,17 @@
             if (getTimeFromCurrentDate() >= "20.00") {
                 minDt = 1;
             }
-
-
+        
             $("#datepicker").datepicker({ minDate: minDt, maxDate: "+1W" });
-            $("#timepicker").timepicker({'minTime': '11:00 AM', 'maxTime': '9:00 PM', step: '30'})
+            $("#timepicker").timepicker({ 'minTime': '11:00 AM', 'maxTime': '9:00 PM', step: '30' });
         });
-
-
-
-
+        
         function setPickUpTime() {
+
             var dateSelected = document.getElementById("datepicker").value;
             var dt = new Date(dateSelected);
             var today = new Date();
+            var selectedTime = '';
 
             dt.setHours(0, 0, 0, 0);
             if (dt > today) {
@@ -182,9 +180,7 @@
             }
 
             $('#timepicker').timepicker('option', 'minTime', selectedTime);
-
         }
-
 
         function getTimeFromCurrentDate() {
             var curDt = new Date();
@@ -195,10 +191,10 @@
             }
             else {
                 if (curDt.getMinutes() < 30) {
-                    minTime = (curDt.getHours() + 1).toString() + ':30pm'
+                    minTime = (curDt.getHours() + 1).toString() + ':30pm';
                 }
                 else {
-                    minTime = (curDt.getHours() + 2).toString() + ':00pm'
+                    minTime = (curDt.getHours() + 2).toString() + ':00pm';
                 }
             }
             return minTime;
@@ -208,27 +204,26 @@
             setPickUpTime();
         });
 
-
         function validateInput() {
             var time = document.getElementById("timepicker").value;
-            var dt = document.getElementById("datepicker").value;
+            var date = document.getElementById("datepicker").value;
             var name = document.getElementById("txtName").value;
             var phone = document.getElementById("txtPhone").value;
 
-            if (dt.toString().length == 0) {
-                alert("Please select pickup date")
+            if (date.toString().length === 0) {
+                alert("Please select pickup date");
                 return false;
             }
-            else if (time.toString().length == 0) {
-                alert("Please select pickup time")
+            else if (time.toString().length === 0) {
+                alert("Please select pickup time");
                 return false;
             }
-            else if (name.toString().length == 0) {
-                alert("Please enter pickup name")
+            else if (name.toString().length === 0) {
+                alert("Please enter pickup name");
                 return false;
             }
-            else if (phone.toString().length == 0) {
-                alert("Please enter a phone number")
+            else if (phone.toString().length === 0) {
+                alert("Please enter a phone number");
                 return false;
             }
             else {
