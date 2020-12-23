@@ -120,6 +120,7 @@
                                 @{
                                     var orderTotalForStrip = Model.OrderHeader.OrderTotal * 100;
                                 }
+
                                 <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                                         data-key="@Stripe.Value.PublishableKey"
                                         data-amount="@orderTotalForStrip"

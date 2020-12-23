@@ -89,6 +89,7 @@ namespace Spice
                 app.UseHsts();
             }
             app.UseRouting();
+            
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe")["SecretKey"];
 
             AsyncHelper.RunSync(dbInitializer.Initialize);

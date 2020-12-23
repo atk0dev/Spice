@@ -17,7 +17,7 @@
     </div>
     <br />
     <div>
-        @if (Model.Orders.Count() > 0)
+        @if (Model.Orders.Any())
         {
             <table class="table table-striped border">
                 <tr class="table-secondary">
@@ -77,6 +77,7 @@
                     </tr>
                 }
             </table>
+
             <div page-model="@Model.PagingInfo" page-classes-enabled="true" page-class="btn border"
                  page-class-normal="btn btn-light" page-class-selected="btn btn-info active"
                  class="btn-group float-right">
@@ -105,6 +106,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="myOrderStatus" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">

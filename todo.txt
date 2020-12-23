@@ -5,3 +5,4 @@
 5. hangfire 
 6. Add search for menu items
 7. DateTime.Now => DateTime.UtcNow
+8. switch to my own stripe

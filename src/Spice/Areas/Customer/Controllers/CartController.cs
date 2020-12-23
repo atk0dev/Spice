@@ -186,7 +186,7 @@ namespace Spice.Areas.Customer.Controllers
             };
             
             var service = new ChargeService();
-            Charge charge = service.Create(options);
+            Charge charge = await service.CreateAsync(options);
 
             if (charge.BalanceTransactionId == null)
             {

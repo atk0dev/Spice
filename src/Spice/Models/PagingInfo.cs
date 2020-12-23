@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Spice.Models
+﻿namespace Spice.Models
 {
+    using System;
+
     public class PagingInfo
     {
         public int TotalItem { get; set; }
@@ -13,8 +10,8 @@ namespace Spice.Models
 
         public int CurrentPage { get; set; }
 
-        public int totalPage => (int)Math.Ceiling((decimal)TotalItem / ItemsPerPage);
+        public int TotalPage => (int)Math.Ceiling((decimal)TotalItem / ItemsPerPage);
 
-        public string urlParam { get; set; }
+        public string UrlParam { get; set; }
     }
 }
