@@ -98,82 +98,75 @@ namespace Spice.Areas.Customer.Controllers
         }
 
         [Authorize(Roles = SD.KitchenUser + "," + SD.ManagerUser)]
-        public async Task<IActionResult> ManageOrder(int productPage = 1)
+        public async Task<IActionResult> ManageOrder()
         {
-           
-            List<OrderDetailsViewModel> orderDetailsVM = new List<OrderDetailsViewModel>();
+            List<OrderDetailsViewModel> orderDetailsViewModels = new List<OrderDetailsViewModel>();
+            List<OrderHeader> orderHeaderList = await _db.OrderHeader
+                .Where(o=>o.Status==SD.StatusSubmitted || o.Status==SD.StatusInProcess)
+                .OrderByDescending(u=>u.PickUpTime)
+                .ToListAsync();
 
-            List<OrderHeader> OrderHeaderList = await _db.OrderHeader.Where(o=>o.Status==SD.StatusSubmitted || o.Status==SD.StatusInProcess).OrderByDescending(u=>u.PickUpTime).ToListAsync();
-            
-
-            foreach (OrderHeader item in OrderHeaderList)
+            foreach (OrderHeader item in orderHeaderList)
             {
-                OrderDetailsViewModel individual = new OrderDetailsViewModel
+                var individual = new OrderDetailsViewModel
                 {
                     OrderHeader = item,
                     OrderDetails = await _db.OrderDetails.Where(o => o.OrderId == item.Id).ToListAsync()
                 };
-                orderDetailsVM.Add(individual);
+
+                orderDetailsViewModels.Add(individual);
             }
 
-            
-
-            return View(orderDetailsVM.OrderBy(o=>o.OrderHeader.PickUpTime).ToList());
+            return View(orderDetailsViewModels.OrderBy(o=>o.OrderHeader.PickUpTime).ToList());
         }
 
-
-        public async Task<IActionResult> GetOrderDetails(int Id)
+        public async Task<IActionResult> GetOrderDetails(int id)
         {
-            OrderDetailsViewModel orderDetailsViewModel = new OrderDetailsViewModel()
+            var orderDetailsViewModel = new OrderDetailsViewModel()
             {
-                OrderHeader = await _db.OrderHeader.Include(el => el.ApplicationUser).FirstOrDefaultAsync(m => m.Id == Id),
-                OrderDetails = await _db.OrderDetails.Where(m => m.OrderId == Id).ToListAsync()
+                OrderHeader = await _db.OrderHeader
+                    .Include(el => el.ApplicationUser)
+                    .FirstOrDefaultAsync(m => m.Id == id),
+                OrderDetails = await _db.OrderDetails
+                    .Where(m => m.OrderId == id)
+                    .ToListAsync()
             };
-            //orderDetailsViewModel.OrderHeader.ApplicationUser = await _db.ApplicationUser.FirstOrDefaultAsync(u => u.Id == orderDetailsViewModel.OrderHeader.UserId);
 
             return PartialView("_IndividualOrderDetails", orderDetailsViewModel);
         }
 
-
-
-
         [Authorize(Roles =SD.KitchenUser + ","+ SD.ManagerUser)]
-        public async Task<IActionResult> OrderPrepare(int OrderId)
+        public async Task<IActionResult> OrderPrepare(int orderId)
         {
-            OrderHeader orderHeader = await _db.OrderHeader.FindAsync(OrderId);
+            OrderHeader orderHeader = await _db.OrderHeader.FindAsync(orderId);
             orderHeader.Status = SD.StatusInProcess;
             await _db.SaveChangesAsync();
             return RedirectToAction("ManageOrder", "Order");
         }
 
-
         [Authorize(Roles = SD.KitchenUser + "," + SD.ManagerUser)]
-        public async Task<IActionResult> OrderReady(int OrderId)
+        public async Task<IActionResult> OrderReady(int orderId)
         {
-            OrderHeader orderHeader = await _db.OrderHeader.FindAsync(OrderId);
+            OrderHeader orderHeader = await _db.OrderHeader.FindAsync(orderId);
             orderHeader.Status = SD.StatusReady;
             await _db.SaveChangesAsync();
 
             //Email logic to notify user that order is ready for pickup
             await _emailSender.SendEmailAsync(_db.Users.Where(u => u.Id == orderHeader.UserId).FirstOrDefault().Email, "Spice - Order Ready for Pickup " + orderHeader.Id.ToString(), "Order is ready for pickup.");
 
-
             return RedirectToAction("ManageOrder", "Order");
         }
 
-
         [Authorize(Roles = SD.KitchenUser + "," + SD.ManagerUser)]
-        public async Task<IActionResult> OrderCancel(int OrderId)
+        public async Task<IActionResult> OrderCancel(int orderId)
         {
-            OrderHeader orderHeader = await _db.OrderHeader.FindAsync(OrderId);
+            OrderHeader orderHeader = await _db.OrderHeader.FindAsync(orderId);
             orderHeader.Status = SD.StatusCancelled;
             await _db.SaveChangesAsync();
             await _emailSender.SendEmailAsync(_db.Users.Where(u => u.Id == orderHeader.UserId).FirstOrDefault().Email, "Spice - Order Cancelled " + orderHeader.Id.ToString(), "Order has been cancelled successfully.");
 
             return RedirectToAction("ManageOrder", "Order");
         }
-
-
 
         [Authorize]
         public async Task<IActionResult> OrderPickup(int productPage = 1, string searchEmail=null, string searchPhone = null, string searchName = null)
